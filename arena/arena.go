@@ -2,6 +2,7 @@ package arena
 
 import (
 	"github.com/nsf/termbox-go"
+	"gitlab.com/VictorKomarov/snake/game"
 )
 
 type Config struct {
@@ -19,8 +20,8 @@ func defaultConfig() Config {
 }
 
 type Arena struct {
-	xSize int
-	ySize int
+	FromX, ToX int
+	FromY, ToY int
 	cfg Config
 }
 
@@ -29,8 +30,10 @@ func New(cfg *Config) *Arena {
 	x, y := termbox.Size()
 	x, y = x / 2, y /2
 	a := &Arena {
-		xSize : x,
-		ySize : y,
+		FromX : x - (x / 2),
+		ToX : x + (x / 2),
+		FromY : y - (y / 2),
+		ToY : y + (y / 2),
 	}
 	if cfg != nil {
 		a.cfg = *cfg
@@ -40,17 +43,23 @@ func New(cfg *Config) *Arena {
 	return a
 }
 
-func (a *Arena) Draw() {
+func (a *Arena) Draw(snake []game.Cell) {
 	a.drawBackground()
+	a.drawSnake(snake)
 	termbox.Flush()
 }
 
 func (a *Arena) drawBackground() {
-	hX, hY := a.xSize / 2, a.ySize / 2
-	for i := a.xSize - hX; i < a.xSize + hX; i++ {
-		for j := a.ySize - hY; j < a.ySize + hY; j++ {
+	for i := a.FromX; i < a.ToX; i++ {
+		for j := a.FromY; j < a.ToY; j++ {
 			termbox.SetCell(i, j, ' ', termbox.ColorDefault, a.cfg.bgColor)
 		}
+	}
+}
+
+func (a *Arena) drawSnake(snake []game.Cell) {
+	for _, cell := range snake {
+		termbox.SetCell(cell.X, cell.Y, ' ', a.cfg.snakeColor, termbox.ColorDefault)
 	}
 }
 
