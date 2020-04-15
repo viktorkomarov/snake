@@ -1,9 +1,7 @@
-package snake
+package game
 
 import (
 	"math/rand"
-	
-	"gitlab.com/VictorKomarov/snake/game"
 )
 
 type NextStep string
@@ -22,11 +20,11 @@ type Snake struct {
 }
 
 type Node struct {
-	coordinate game.Cell
+	coordinate Cell
 	tail *Node
 }
 
-func New(fromX, toX, fromY, toY int)*Snake {
+func NewSnake(fromX, toX, fromY, toY int)*Snake {
 	x := rand.Intn(toX-fromX) + fromX
 	y := rand.Intn(toY-fromY) + fromY
 	defaultStart := Right
@@ -37,12 +35,12 @@ func New(fromX, toX, fromY, toY int)*Snake {
 		size: 1,
 		nextStep : defaultStart,
 		head: &Node{
-			coordinate : game.Cell{X: x, Y: y},
+			coordinate : Cell{X: x, Y: y},
 		},
 	}
 }
 
-func moveCoordinate(coordinate game.Cell, to NextStep) game.Cell {
+func moveCoordinate(coordinate Cell, to NextStep) Cell {
 	switch to {
 	case Up:
 		coordinate.X += 1
@@ -70,8 +68,13 @@ func (s *Snake) Move() {
 	}
 }
 
-func (s *Snake) Snapshot() []game.Cell {
-	cells := make([]game.Cell, 0, s.size)
+func (s *Snake) MoveByUser(road NextStep) {
+	s.nextStep = road
+	s.Move()
+}
+
+func (s *Snake) Snapshot() []Cell {
+	cells := make([]Cell, 0, s.size)
 	node := s.head
 	for node != nil {
 		cells = append(cells, node.coordinate)

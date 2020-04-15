@@ -1,14 +1,17 @@
-package arena
+package game
 
 import (
 	"github.com/nsf/termbox-go"
-	"gitlab.com/VictorKomarov/snake/game"
 )
 
 type Config struct {
 	snakeColor termbox.Attribute
 	foodColor termbox.Attribute
 	bgColor termbox.Attribute
+}
+
+type Cell struct {
+	X, Y int
 }
 
 func defaultConfig() Config {
@@ -25,7 +28,7 @@ type Arena struct {
 	cfg Config
 }
 
-func New(cfg *Config) *Arena {
+func NewArena(cfg *Config) *Arena {
 	termbox.Init()
 	x, y := termbox.Size()
 	x, y = x / 2, y /2
@@ -43,7 +46,7 @@ func New(cfg *Config) *Arena {
 	return a
 }
 
-func (a *Arena) Draw(snake []game.Cell) {
+func (a *Arena) Draw(snake []Cell) {
 	a.drawBackground()
 	a.drawSnake(snake)
 	termbox.Flush()
@@ -57,7 +60,7 @@ func (a *Arena) drawBackground() {
 	}
 }
 
-func (a *Arena) drawSnake(snake []game.Cell) {
+func (a *Arena) drawSnake(snake []Cell) {
 	for _, cell := range snake {
 		termbox.SetCell(cell.X, cell.Y, ' ', a.cfg.snakeColor, termbox.ColorDefault)
 	}
