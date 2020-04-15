@@ -16,9 +16,9 @@ type Cell struct {
 
 func defaultConfig() Config {
 	return Config {
-		snakeColor  : termbox.ColorGreen,
+		snakeColor  : termbox.ColorBlack,
 		foodColor   : termbox.ColorRed,
-		bgColor     : termbox.ColorBlue,
+		bgColor     : termbox.ColorGreen,
 	}
 }
 
