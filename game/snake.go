@@ -63,8 +63,10 @@ func (s *Snake) Move() {
 	node.coordinate = moveCoordinate(node.coordinate, s.nextStep)
 	node = node.tail
 	for node != nil {
+		oldCoordinate := node.coordinate
 		node.coordinate = fromCoordinate
 		node = node.tail
+		fromCoordinate = oldCoordinate
 	}
 }
 
@@ -82,4 +84,39 @@ func (s *Snake) Snapshot() []Cell {
 	}
 
 	return cells
+}
+
+// pointer to last head
+func(s *Snake) Eat(food Cell) bool {
+	node := s.head
+	if !(node.coordinate.X == food.X && node.coordinate.Y == food.Y) {
+		return false
+	}
+
+	for node.tail != nil {
+		node = node.tail
+	}
+	
+	newX, newY := node.coordinate.X, node.coordinate.Y
+	switch s.nextStep {
+	case Up:
+		newX -= 1
+	case Down:
+		newX += 1	
+	case Left:
+		newY += 1
+	case Right:
+		newY -= 1		
+	}
+	
+	node.tail = &Node{
+		coordinate :Cell {
+			X: newX,
+			Y: newY,
+		},
+		tail: nil,
+	}
+	s.size++
+
+	return true
 }

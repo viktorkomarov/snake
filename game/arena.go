@@ -30,6 +30,7 @@ type Arena struct {
 
 func NewArena(cfg *Config) *Arena {
 	termbox.Init()
+	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 	x, y := termbox.Size()
 	x, y = x / 2, y /2
 	a := &Arena {
@@ -42,27 +43,32 @@ func NewArena(cfg *Config) *Arena {
 		a.cfg = *cfg
 	} else {
 		a.cfg = defaultConfig()
-	}
+	}	
 	return a
 }
 
-func (a *Arena) Draw(snake []Cell) {
+func (a *Arena) Draw(snake []Cell, food Cell) {
 	a.drawBackground()
 	a.drawSnake(snake)
+	a.drawFood(food)
 	termbox.Flush()
+}
+
+func (a *Arena) drawFood(food Cell) {
+	termbox.SetCell(food.X, food.Y, '■', a.cfg.foodColor, a.cfg.bgColor)
 }
 
 func (a *Arena) drawBackground() {
 	for i := a.FromX; i < a.ToX; i++ {
 		for j := a.FromY; j < a.ToY; j++ {
-			termbox.SetCell(i, j, ' ', termbox.ColorDefault, a.cfg.bgColor)
+			termbox.SetCell(i, j, ' ', a.cfg.bgColor, a.cfg.bgColor)
 		}
 	}
 }
 
 func (a *Arena) drawSnake(snake []Cell) {
 	for _, cell := range snake {
-		termbox.SetCell(cell.X, cell.Y, ' ', a.cfg.snakeColor, termbox.ColorDefault)
+		termbox.SetCell(cell.X, cell.Y, '●', a.cfg.snakeColor, a.cfg.bgColor)
 	}
 }
 

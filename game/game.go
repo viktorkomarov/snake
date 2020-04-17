@@ -65,11 +65,14 @@ func Actions(request chan struct{}, changeLastAction chan NextStep) chan NextSte
 	return output
 }
 
-func Run(speed time.Duration, action chan NextStep, snake *Snake, arena *Arena, request chan struct{}) {
-	
+func Run(speed time.Duration, action chan NextStep, snake *Snake, arena *Arena, request chan struct{},food Food) {
+	arena.Draw(snake.Snapshot(), food.Coordinate())
+
 	for{
+		
 		request <- struct{}{}
 		timer := time.NewTimer(speed)
+		
 		select{
 		case <- timer.C: // correct ?
 			snake.Move()
@@ -77,7 +80,11 @@ func Run(speed time.Duration, action chan NextStep, snake *Snake, arena *Arena, 
 			snake.MoveByUser(road)
 			<- timer.C
 		}
+		
+		if eaten := snake.Eat(food.Coordinate()); eaten {
+			food.regenerate()
+		}
 
-		arena.Draw(snake.Snapshot())
+		arena.Draw(snake.Snapshot(), food.Coordinate())
 	}
 }
