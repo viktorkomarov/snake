@@ -70,6 +70,10 @@ func Run(speed time.Duration, action chan NextStep, snake *Snake, arena *Arena, 
 		if time.Now().Before(nextTick) {
 			continue
 		}
+
+		if snake.IsEnd() {
+			return
+		}
 		
 		request <- struct{}{}
 		step := <- action

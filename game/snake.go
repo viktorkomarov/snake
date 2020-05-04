@@ -16,6 +16,7 @@ const (
 type Snake struct {
 	size int
 	NextStep NextStep
+	borders []int
 	head *Node
 }
 
@@ -37,18 +38,40 @@ func NewSnake(fromX, toX, fromY, toY int)*Snake {
 		head: &Node{
 			coordinate : Cell{X: x, Y: y},
 		},
+		borders : []int{fromX, toX, fromY, toY},
 	}
 }
 
-func moveCoordinate(coordinate Cell, to NextStep) Cell {
+// borders [fromX, toX, fromY, toY]
+func(s *Snake) moveCoordinate(coordinate Cell, to NextStep) Cell {
 	switch to {
 	case Up:
+		if coordinate.X + 1 >= s.borders[1] {
+			coordinate.X = s.borders[0] 
+			return coordinate
+		}
+
 		coordinate.X += 1
 	case Down:
+		if coordinate.X - 1 <= s.borders[0] {
+			coordinate.X = s.borders[1]-1
+			return coordinate
+		}
+
 		coordinate.X -= 1
 	case Left:
+		if coordinate.Y - 1 <= s.borders[2] {
+			coordinate.Y = s.borders[3]-1
+			return coordinate
+		}
+
 		coordinate.Y -= 1
 	case Right:
+		if coordinate.Y + 1 >= s.borders[3] {
+			coordinate.Y = s.borders[2]+1
+			return coordinate
+		}
+
 		coordinate.Y += 1
 	default:
 		panic("change logic")		
@@ -57,10 +80,24 @@ func moveCoordinate(coordinate Cell, to NextStep) Cell {
 	return coordinate
 }
 
+func (s *Snake) IsEnd() bool {
+	headCoordinate := s.head.coordinate
+	head := s.head.tail
+	for head != nil {
+		if s.head.coordinate == headCoordinate {
+			return true
+		}
+
+		head = s.head.tail
+	}
+
+	return false
+}
+
 func (s *Snake) move() {
 	node := s.head
 	fromCoordinate := node.coordinate
-	node.coordinate = moveCoordinate(node.coordinate, s.NextStep)
+	node.coordinate = s.moveCoordinate(node.coordinate, s.NextStep)
 	node = node.tail
 	for node != nil {
 		oldCoordinate := node.coordinate
@@ -93,7 +130,7 @@ func (s *Snake) MoveByUser(road NextStep) {
 	if s.validateUserRoad(road) {
 		s.NextStep = road
 	}
-
+	
 	s.move()
 }
 
