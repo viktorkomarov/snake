@@ -31,8 +31,8 @@ type Arena struct {
 func NewArena(cfg *Config) *Arena {
 	termbox.Init()
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
-	x, y := termbox.Size()
-	x, y = x / 2, y /2
+	width, height := termbox.Size()
+	x, y := width/2 , height/2
 	a := &Arena {
 		FromX : x - (x / 2),
 		ToX : x + (x / 2),
@@ -55,20 +55,20 @@ func (a *Arena) Draw(snake []Cell, food Cell) {
 }
 
 func (a *Arena) drawFood(food Cell) {
-	termbox.SetCell(food.X, food.Y, '■', a.cfg.foodColor, a.cfg.bgColor)
+	termbox.SetCell(food.X, food.Y, '●', a.cfg.foodColor, termbox.ColorBlack)
 }
 
 func (a *Arena) drawBackground() {
 	for i := a.FromX; i < a.ToX; i++ {
 		for j := a.FromY; j < a.ToY; j++ {
-			termbox.SetCell(i, j, ' ', a.cfg.bgColor, a.cfg.bgColor)
+			termbox.SetCell(i, j, ' ', termbox.ColorBlack, termbox.ColorBlack)
 		}
 	}
 }
 
 func (a *Arena) drawSnake(snake []Cell) {
 	for _, cell := range snake {
-		termbox.SetCell(cell.X, cell.Y, '●', a.cfg.snakeColor, a.cfg.bgColor)
+		termbox.SetCell(cell.X, cell.Y, ' ', a.cfg.snakeColor, a.cfg.bgColor)
 	}
 }
 

@@ -42,22 +42,16 @@ func UserAction() chan NextStep{
 	return action
 }
 
-func Actions(request chan struct{}, changeLastAction chan NextStep) chan NextStep {
+func Actions(request chan struct{}, changeLastAction chan NextStep, last NextStep) chan NextStep {
 	output := make(chan NextStep)
 
 	go func(){
-		var last NextStep
-		updated := false
-
 		for{
 			select{
 			case <-request:
-				if updated {
-					output <- last
-				}
+				output <- last
 			case update := <- changeLastAction:
 				last = update
-				updated = true	
 			}
 		}
 	}()
@@ -68,23 +62,25 @@ func Actions(request chan struct{}, changeLastAction chan NextStep) chan NextSte
 func Run(speed time.Duration, action chan NextStep, snake *Snake, arena *Arena, request chan struct{},food Food) {
 	arena.Draw(snake.Snapshot(), food.Coordinate())
 
-	for{
-		
-		request <- struct{}{}
-		timer := time.NewTimer(speed)
-		
-		select{
-		case <- timer.C: // correct ?
-			snake.Move()
-		case road :=<- action:
-			snake.MoveByUser(road)
-			<- timer.C
+	ticker := time.NewTicker(time.Millisecond)
+	defer ticker.Stop()
+	nextTick := time.Now().Add(speed)
+
+	for range ticker.C {
+		if time.Now().Before(nextTick) {
+			continue
 		}
 		
+		request <- struct{}{}
+		step := <- action
+		
+		snake.MoveByUser(step)
+
 		if eaten := snake.Eat(food.Coordinate()); eaten {
 			food.regenerate()
 		}
 
 		arena.Draw(snake.Snapshot(), food.Coordinate())
+		nextTick = nextTick.Add(speed)
 	}
 }

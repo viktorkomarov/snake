@@ -15,7 +15,7 @@ const (
 
 type Snake struct {
 	size int
-	nextStep NextStep
+	NextStep NextStep
 	head *Node
 }
 
@@ -33,7 +33,7 @@ func NewSnake(fromX, toX, fromY, toY int)*Snake {
 	}
 	return &Snake {
 		size: 1,
-		nextStep : defaultStart,
+		NextStep : defaultStart,
 		head: &Node{
 			coordinate : Cell{X: x, Y: y},
 		},
@@ -57,10 +57,10 @@ func moveCoordinate(coordinate Cell, to NextStep) Cell {
 	return coordinate
 }
 
-func (s *Snake) Move() {
+func (s *Snake) move() {
 	node := s.head
 	fromCoordinate := node.coordinate
-	node.coordinate = moveCoordinate(node.coordinate, s.nextStep)
+	node.coordinate = moveCoordinate(node.coordinate, s.NextStep)
 	node = node.tail
 	for node != nil {
 		oldCoordinate := node.coordinate
@@ -70,9 +70,31 @@ func (s *Snake) Move() {
 	}
 }
 
+func (s *Snake) validateUserRoad(road NextStep) bool {
+	if s.size == 1 {
+		return true
+	}
+
+	switch road {
+	case Left:
+		return s.NextStep != Right
+	case Right:
+		return s.NextStep != Left
+	case Up:
+		return s.NextStep != Down
+	case Down:
+		return s.NextStep != Up			
+	}
+
+	return true
+}
+
 func (s *Snake) MoveByUser(road NextStep) {
-	s.nextStep = road
-	s.Move()
+	if s.validateUserRoad(road) {
+		s.NextStep = road
+	}
+
+	s.move()
 }
 
 func (s *Snake) Snapshot() []Cell {
@@ -98,7 +120,7 @@ func(s *Snake) Eat(food Cell) bool {
 	}
 	
 	newX, newY := node.coordinate.X, node.coordinate.Y
-	switch s.nextStep {
+	switch s.NextStep {
 	case Up:
 		newX -= 1
 	case Down:

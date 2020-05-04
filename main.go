@@ -14,7 +14,7 @@ func main(){
 
 	request := make(chan struct{})
 	active := game.UserAction()
-	actionByRequest := game.Actions(request, active)
+	actionByRequest := game.Actions(request, active, snake.NextStep)
 	if termbox.IsInit {
 		game.Run(time.Millisecond * 50, actionByRequest, snake, arena, request, food)
 	}
