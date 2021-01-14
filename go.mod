@@ -1,4 +1,4 @@
-module gitlab.com/VictorKomarov/snake
+module github.com/viktorkomarov/snake
 
 go 1.13
 

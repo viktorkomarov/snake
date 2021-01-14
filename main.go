@@ -1,13 +1,13 @@
 package main
 
-import(
+import (
 	"time"
 
-	"gitlab.com/VictorKomarov/snake/game"
 	"github.com/nsf/termbox-go"
+	"github.com/viktorkomarov/snake/game"
 )
 
-func main(){
+func main() {
 	arena := game.NewArena(nil)
 	snake := game.NewSnake(arena.FromX, arena.ToX, arena.FromY, arena.ToY)
 	food := game.NewFood(arena.FromX, arena.ToX, arena.FromY, arena.ToY)
@@ -16,6 +16,6 @@ func main(){
 	active := game.UserAction()
 	actionByRequest := game.Actions(request, active, snake.NextStep)
 	if termbox.IsInit {
-		game.Run(time.Millisecond * 50, actionByRequest, snake, arena, request, food)
+		game.Run(time.Millisecond*50, actionByRequest, snake, arena, request, food)
 	}
 }
