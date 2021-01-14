@@ -1,21 +1,22 @@
 package main
 
 import (
-	"time"
+	"context"
+	"log"
 
-	"github.com/nsf/termbox-go"
 	"github.com/viktorkomarov/snake/game"
 )
 
 func main() {
-	arena := game.NewArena(nil)
-	snake := game.NewSnake(arena.FromX, arena.ToX, arena.FromY, arena.ToY)
-	food := game.NewFood(arena.FromX, arena.ToX, arena.FromY, arena.ToY)
-
-	request := make(chan struct{})
-	active := game.UserAction()
-	actionByRequest := game.Actions(request, active, snake.NextStep)
-	if termbox.IsInit {
-		game.Run(time.Millisecond*50, actionByRequest, snake, arena, request, food)
+	painter, err := game.NewPainter(game.PainterCfg())
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	events := game.NewController(context.Background())
+	ch := events.Events()
+	e := <-ch
+	painter.Close()
+
+	log.Printf("%v", e)
 }

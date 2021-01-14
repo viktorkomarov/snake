@@ -5,17 +5,17 @@ import (
 )
 
 type Food struct {
-	actual Cell
+	actual     Cell
 	fromX, toX int
 	fromY, toY int
 }
 
 func NewFood(fromX, toX, fromY, toY int) Food {
-	f := Food {
-		fromX : fromX, 
-		toX: toX, 
+	f := Food{
+		fromX: fromX,
+		toX:   toX,
 		fromY: fromY,
-		toY:  toY,
+		toY:   toY,
 	}
 	f.regenerate()
 	return f
