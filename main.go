@@ -2,21 +2,39 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/nsf/termbox-go"
 	"github.com/viktorkomarov/snake/game"
 )
 
 func main() {
-	painter, err := game.NewPainter(game.PainterCfg())
+	err := termboxInit()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer termbox.Close()
 
-	events := game.NewController(context.Background())
-	ch := events.Events()
-	e := <-ch
-	painter.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	log.Printf("%v", e)
+	width, height := termbox.Size()
+	arena := game.NewArena(width, height)
+	painter := game.NewPainter(game.PainterCfg(), arena)
+	collector := game.NewController(ctx)
+	game := game.NewGame(painter, collector.Events())
+
+	score, err := game.Start()
+	fmt.Printf("%d %v\n", score, err)
+}
+
+func termboxInit() error {
+	err := termbox.Init()
+	if err != nil {
+		return err
+	}
+
+	termbox.SetInputMode(termbox.InputEsc)
+	return nil
 }

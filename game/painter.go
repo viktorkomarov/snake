@@ -1,9 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/nsf/termbox-go"
 )
 
@@ -37,36 +34,23 @@ type Painter struct {
 	arena Arena
 }
 
-func NewPainter(cfg *PainterConfig) (*Painter, error) {
+func NewPainter(cfg *PainterConfig, arena Arena) *Painter {
 	if cfg == nil {
 		cfg = PainterCfg()
 	}
 
-	if err := termbox.Init(); err != nil {
-		return nil, fmt.Errorf("%w: can't init termobox", err)
-	}
-	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
-
-	width, height := termbox.Size()
-	arena := NewArena(width, height)
-
 	return &Painter{
 		cfg:   *cfg,
 		arena: arena,
-	}, nil
+	}
 }
 
-func (p *Painter) Close() {
-	termbox.Close()
-}
-
-func (p *Painter) Draw() {
+func (p *Painter) Draw(snake *Snake, food Food) {
 	for y := p.arena.FromY; y <= p.arena.ToY; y++ {
 		for x := p.arena.FromX; x <= p.arena.ToX; x++ {
 			termbox.SetBg(x, y, p.cfg.Colors.Bg)
 		}
 	}
-	termbox.Flush()
 
-	time.Sleep(time.Second * 5)
+	termbox.Flush()
 }

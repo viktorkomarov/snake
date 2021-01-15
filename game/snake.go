@@ -18,9 +18,17 @@ type Node struct {
 	tail       *Node
 }
 
+func NewSnake() *Snake {
+	return &Snake{}
+}
+
+func (s *Snake) Score() int {
+	return s.score
+}
+
 func (s *Snake) move(step Event, food Cell) error {
 	if !validateStep(s.prevStep, step) {
-		return nil
+		step = s.prevStep
 	}
 
 	prevCoord := s.moveHead(step)
