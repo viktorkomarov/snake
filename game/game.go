@@ -11,17 +11,20 @@ type Game struct {
 	painter *Painter
 	events  <-chan Event
 	ticker  *time.Ticker
+	arena   Arena
 }
 
-func NewGame(painter *Painter, events <-chan Event) *Game {
+func NewGame(painter *Painter, events <-chan Event, arena Arena) *Game {
 	return &Game{
 		painter: painter,
-		ticker:  time.NewTicker(time.Second * 3),
 		events:  events,
+		arena:   arena,
+		ticker:  time.NewTicker(time.Millisecond * 50),
 	}
 }
 
-func (g *Game) updateTicker(d time.Duration) {}
+func (g *Game) updateTicker() {
+}
 
 func (g *Game) move(lastStep Event) Event {
 	select {
@@ -35,20 +38,25 @@ func (g *Game) move(lastStep Event) Event {
 func (g *Game) Start() (int, error) {
 	lastStep := Left
 
-	snake := NewSnake()
-	food := NewFood(0, 0, 0, 0)
+	snake := NewSnake(g.arena, lastStep)
+	food := g.arena.RandomCell()
+
 	for _ = range g.ticker.C {
-		event := g.move(lastStep)
-		if event == Kill {
-			return snake.Score(), ErrGameInterrupt
+		lastStep = g.move(lastStep)
+		if lastStep == Kill {
+			return snake.Size(), ErrGameInterrupt
 		}
 
-		err := snake.move(event, food.Coordinate())
+		eat, err := snake.move(lastStep, food)
 		if err != nil {
-			return snake.Score(), err
+			return snake.Size(), err
 		}
 
-		g.painter.Draw(snake, food)
+		if eat {
+			food = g.arena.RandomCell()
+		}
+
+		g.painter.Draw(snake.Head, food)
 	}
 
 	return 0, nil

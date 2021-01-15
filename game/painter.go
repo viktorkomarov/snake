@@ -45,12 +45,19 @@ func NewPainter(cfg *PainterConfig, arena Arena) *Painter {
 	}
 }
 
-func (p *Painter) Draw(snake *Snake, food Food) {
+func (p *Painter) Draw(snake *Node, food Cell) {
 	for y := p.arena.FromY; y <= p.arena.ToY; y++ {
 		for x := p.arena.FromX; x <= p.arena.ToX; x++ {
 			termbox.SetBg(x, y, p.cfg.Colors.Bg)
 		}
 	}
+
+	for snake != nil {
+		termbox.SetCell(snake.Coordinate.X, snake.Coordinate.Y, p.cfg.Symbols.Snake, p.cfg.Colors.Snake, p.cfg.Colors.Snake)
+		snake = snake.Tail
+	}
+
+	termbox.SetCell(food.X, food.Y, p.cfg.Symbols.Food, p.cfg.Colors.Food, p.cfg.Colors.Bg)
 
 	termbox.Flush()
 }

@@ -1,5 +1,7 @@
 package game
 
+import "math/rand"
+
 type Cell struct {
 	X, Y int
 }
@@ -7,13 +9,13 @@ type Cell struct {
 func NewCell(step Event) Cell {
 	switch step {
 	case Up:
-		return Cell{0, 1}
-	case Down:
 		return Cell{0, -1}
+	case Down:
+		return Cell{0, 1}
 	case Left:
 		return Cell{-1, 0}
 	case Right:
-		return Cell{0, 1}
+		return Cell{1, 0}
 	}
 
 	return Cell{0, 0}
@@ -31,5 +33,12 @@ func NewArena(width, height int) Arena {
 		ToX:   x + (x / 2),
 		FromY: y - (y / 2),
 		ToY:   y + (y / 2),
+	}
+}
+
+func (a Arena) RandomCell() Cell {
+	return Cell{
+		X: rand.Intn(a.ToX-a.FromX) + a.FromX,
+		Y: rand.Intn(a.ToY-a.FromY) + a.FromY,
 	}
 }

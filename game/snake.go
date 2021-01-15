@@ -5,80 +5,86 @@ import "errors"
 var ErrSnakeFail = errors.New("snake fail")
 
 type Snake struct {
-	score      int
-	prevStep   Event
-	borders    []int
-	head       *Node
-	fromX, toX int
-	fromY, toY int
+	size     int
+	prevStep Event
+	Head     *Node
+	arena    Arena
 }
 
 type Node struct {
-	coordinate Cell
-	tail       *Node
+	Coordinate Cell
+	Tail       *Node
 }
 
-func NewSnake() *Snake {
-	return &Snake{}
+func NewSnake(arena Arena, firstStep Event) *Snake {
+	return &Snake{
+		size:     1,
+		prevStep: firstStep,
+		arena:    arena,
+		Head: &Node{
+			Coordinate: arena.RandomCell(),
+		},
+	}
 }
 
-func (s *Snake) Score() int {
-	return s.score
+func (s *Snake) Size() int {
+	return s.size
 }
 
-func (s *Snake) move(step Event, food Cell) error {
+func (s *Snake) move(step Event, food Cell) (bool, error) {
 	if !validateStep(s.prevStep, step) {
 		step = s.prevStep
 	}
 
 	prevCoord := s.moveHead(step)
 	addNode := s.eat(food)
-	current := s.head
-	for current.tail != nil {
-		current.tail.coordinate, prevCoord = prevCoord, current.tail.coordinate
-		if prevCoord == s.head.coordinate {
-			return ErrSnakeFail
+	current := s.Head
+
+	for current.Tail != nil {
+		current.Tail.Coordinate, prevCoord = prevCoord, current.Tail.Coordinate
+		if prevCoord == s.Head.Coordinate {
+			return false, ErrSnakeFail
 		}
 
-		current = current.tail
+		current = current.Tail
 	}
 
 	if addNode {
-		current.tail = &Node{coordinate: prevCoord}
+		s.size++
+		current.Tail = &Node{Coordinate: prevCoord}
 	}
 
 	s.prevStep = step
-	return nil
+	return addNode, nil
 }
 
 func (s *Snake) moveHead(step Event) Cell {
-	prev := s.head.coordinate
-
+	prev := s.Head.Coordinate
 	cell := NewCell(step)
-	s.head.coordinate.X += cell.X
-	s.head.coordinate.Y += cell.Y
+	s.Head.Coordinate.X += cell.X
+	s.Head.Coordinate.Y += cell.Y
 
-	if s.head.coordinate.X < s.fromX {
-		s.head.coordinate.X = s.toX
+	if s.Head.Coordinate.X < s.arena.FromX {
+		s.Head.Coordinate.X = s.arena.ToX
 	}
 
-	if s.head.coordinate.X > s.toX {
-		s.head.coordinate.X = s.fromX
+	if s.Head.Coordinate.X > s.arena.ToX {
+		s.Head.Coordinate.X = s.arena.FromX
 	}
 
-	if s.head.coordinate.Y < s.fromY {
-		s.head.coordinate.Y = s.toY
+	if s.Head.Coordinate.Y < s.arena.FromY {
+		s.Head.Coordinate.Y = s.arena.ToY
 	}
 
-	if s.head.coordinate.Y > s.toY {
-		s.head.coordinate.Y = s.fromY
+	if s.Head.Coordinate.Y > s.arena.ToY {
+		s.Head.Coordinate.Y = s.arena.FromY
 	}
 
 	return prev
 }
 
 func (s *Snake) eat(food Cell) bool {
-	return s.head.coordinate == food
+	return s.Head.Coordinate == food
 }
 
 func validateStep(prevStep, nextStep Event) bool {
